@@ -63,6 +63,9 @@
       <option value="À la maison">🏠 À la maison</option>
     </select>
 
+    <label for="destination">Destination</label>
+    <input type="text" id="destination" placeholder="Laisser vide pour ne pas changer">
+
     <label for="password">Mot de passe</label>
     <input type="password" id="password" autocomplete="current-password">
 
@@ -79,6 +82,7 @@
 
     bouton.addEventListener('click', async () => {
       const statut = document.getElementById('statut').value;
+      const destination = document.getElementById('destination').value.trim();
       const password = document.getElementById('password').value;
 
       bouton.disabled = true;
@@ -90,7 +94,7 @@
           method: 'POST',
           // Content-Type volontairement laissé par défaut (text/plain) pour
           // éviter le préflight CORS qu'Apps Script gère mal.
-          body: JSON.stringify({ statut, password })
+          body: JSON.stringify({ statut, destination, password })
         });
         const data = await reponse.json();
 
