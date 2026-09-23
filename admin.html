@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin — Statut du bagage</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px;
+  }
+  .carte {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    max-width: 380px;
+    width: 100%;
+    padding: 28px 24px;
+  }
+  h1 { font-size: 18px; margin: 0 0 20px; text-align: center; }
+  label { display: block; font-size: 13px; color: #6b7280; margin: 14px 0 6px; }
+  select, input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  button {
+    width: 100%;
+    margin-top: 20px;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:disabled { background: #93c5fd; cursor: default; }
+  .statut-msg { text-align: center; margin-top: 14px; font-size: 14px; }
+  .statut-msg.ok { color: #16a34a; }
+  .statut-msg.err { color: #dc2626; }
+</style>
+</head>
+<body>
+
+  <div class="carte">
+    <h1>Changer le statut du bagage</h1>
+
+    <label for="statut">Statut</label>
+    <select id="statut">
+      <option value="En vol">✈️ En vol</option>
+      <option value="Perdu">⚠️ Perdu</option>
+      <option value="À la maison">🏠 À la maison</option>
+    </select>
+
+    <label for="password">Mot de passe</label>
+    <input type="password" id="password" autocomplete="current-password">
+
+    <button id="valider">Mettre à jour</button>
+    <p class="statut-msg" id="statutMsg"></p>
+  </div>
+
+  <script>
+    // Même URL de déploiement Apps Script que dans bagage.html
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTmA_X_9QHO9tJsqG72eFcMa950udUQGJixqk_omezkiwqSvusDelJpEiegkmO-nWaVQ/exec';
+
+    const bouton = document.getElementById('valider');
+    const statutMsg = document.getElementById('statutMsg');
+
+    bouton.addEventListener('click', async () => {
+      const statut = document.getElementById('statut').value;
+      const password = document.getElementById('password').value;
+
+      bouton.disabled = true;
+      statutMsg.textContent = '';
+      statutMsg.className = 'statut-msg';
+
+      try {
+        const reponse = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          // Content-Type volontairement laissé par défaut (text/plain) pour
+          // éviter le préflight CORS qu'Apps Script gère mal.
+          body: JSON.stringify({ statut, password })
+        });
+        const data = await reponse.json();
+
+        if (data.success) {
+          statutMsg.textContent = 'Statut mis à jour ✔';
+          statutMsg.classList.add('ok');
+        } else {
+          statutMsg.textContent = data.error || 'Erreur inconnue';
+          statutMsg.classList.add('err');
+        }
+      } catch (err) {
+        statutMsg.textContent = 'Impossible de contacter le serveur.';
+        statutMsg.classList.add('err');
+      } finally {
+        bouton.disabled = false;
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Statut du bagage</title>
+<style>
+  :root {
+    --bleu: #2563eb;
+    --vert: #16a34a;
+    --rouge: #dc2626;
+    --gris: #6b7280;
+    --fond: #f3f4f6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--fond);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 20px;
+  }
+  .carte {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    max-width: 420px;
+    width: 100%;
+    padding: 32px 28px;
+    text-align: center;
+  }
+  .icone {
+    font-size: 56px;
+    margin-bottom: 8px;
+  }
+  .statut {
+    font-size: 22px;
+    font-weight: 700;
+    margin: 4px 0 20px;
+  }
+  .statut.en-vol { color: var(--bleu); }
+  .statut.perdu { color: var(--rouge); }
+  .statut.maison { color: var(--vert); }
+
+  .bloc {
+    text-align: left;
+    background: var(--fond);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-top: 16px;
+  }
+  .bloc p { margin: 6px 0; font-size: 15px; }
+  .bloc .label { color: var(--gris); font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .bloc a { color: var(--bleu); text-decoration: none; font-weight: 600; }
+
+  .message {
+    font-size: 16px;
+    line-height: 1.5;
+    margin-top: 4px;
+  }
+
+  .termine {
+    color: var(--gris);
+    font-size: 15px;
+    margin-top: 12px;
+  }
+
+  .chargement, .erreur {
+    color: var(--gris);
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+
+  <div class="carte" id="carte">
+    <p class="chargement">Chargement du statut…</p>
+  </div>
+
+  <script>
+    // Remplace par l'URL de ton déploiement Apps Script (voir Code.gs)
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTmA_X_9QHO9tJsqG72eFcMa950udUQGJixqk_omezkiwqSvusDelJpEiegkmO-nWaVQ/exec';
+
+    const ICONES = {
+      'En vol': { emoji: '✈️', classe: 'en-vol' },
+      'Perdu': { emoji: '⚠️', classe: 'perdu' },
+      'À la maison': { emoji: '🏠', classe: 'maison' }
+    };
+
+    async function chargerStatut() {
+      const carte = document.getElementById('carte');
+      try {
+        const reponse = await fetch(APPS_SCRIPT_URL);
+        if (!reponse.ok) throw new Error('Réponse serveur invalide');
+        const data = await reponse.json();
+        afficher(data);
+      } catch (err) {
+        carte.innerHTML = '<p class="erreur">Impossible de charger le statut du bagage pour le moment.</p>';
+      }
+    }
+
+    function afficher(data) {
+      const carte = document.getElementById('carte');
+      const info = ICONES[data.statut] || { emoji: '🧳', classe: '' };
+
+      let html = `
+        <div class="icone">${info.emoji}</div>
+        <div class="statut ${info.classe}">${escapeHtml(data.statut || 'Statut inconnu')}</div>
+      `;
+
+      if (data.voyageTermine) {
+        html += `<p class="termine">Le voyage est terminé, ce bagage n'est plus suivi.</p>`;
+      } else {
+        html += `<div class="bloc">`;
+        if (data.message) {
+          html += `<p class="message">${escapeHtml(data.message)}</p>`;
+        }
+        if (data.destination) {
+          html += `<p><span class="label">Destination</span><br>${escapeHtml(data.destination)}</p>`;
+        }
+        if (data.telephone) {
+          html += `<p><span class="label">Téléphone</span><br><a href="tel:${escapeHtml(data.telephone)}">${escapeHtml(data.telephone)}</a></p>`;
+        }
+        if (data.email) {
+          html += `<p><span class="label">Email</span><br><a href="mailto:${escapeHtml(data.email)}">${escapeHtml(data.email)}</a></p>`;
+        }
+        html += `</div>`;
+      }
+
+      carte.innerHTML = html;
+    }
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    chargerStatut();
+  </script>
+
+</body>
+</html>
