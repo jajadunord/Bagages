@@ -25,21 +25,21 @@
   }
   .carte {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    max-width: 420px;
+    max-width: 560px;
     width: 100%;
-    padding: 32px 28px;
+    padding: 40px 32px;
     text-align: center;
   }
   .icone {
-    font-size: 56px;
+    font-size: 96px;
     margin-bottom: 8px;
   }
   .statut {
-    font-size: 22px;
+    font-size: 36px;
     font-weight: 700;
-    margin: 4px 0 20px;
+    margin: 4px 0 24px;
   }
   .statut.en-vol { color: var(--bleu); }
   .statut.perdu { color: var(--rouge); }
@@ -48,29 +48,29 @@
   .bloc {
     text-align: left;
     background: var(--fond);
-    border-radius: 12px;
-    padding: 16px 18px;
-    margin-top: 16px;
+    border-radius: 16px;
+    padding: 24px 26px;
+    margin-top: 20px;
   }
-  .bloc p { margin: 6px 0; font-size: 15px; }
-  .bloc .label { color: var(--gris); font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
-  .bloc a { color: var(--bleu); text-decoration: none; font-weight: 600; }
+  .bloc p { margin: 14px 0; font-size: 24px; }
+  .bloc .label { color: var(--gris); font-size: 17px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .bloc a { color: var(--bleu); text-decoration: none; font-weight: 700; }
 
   .message {
-    font-size: 16px;
+    font-size: 26px;
     line-height: 1.5;
     margin-top: 4px;
   }
 
   .termine {
     color: var(--gris);
-    font-size: 15px;
+    font-size: 22px;
     margin-top: 12px;
   }
 
   .chargement, .erreur {
     color: var(--gris);
-    font-size: 15px;
+    font-size: 20px;
   }
 </style>
 </head>
@@ -82,7 +82,7 @@
 
   <script>
     // Remplace par l'URL de ton déploiement Apps Script (voir Code.gs)
-    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTmA_X_9QHO9tJsqG72eFcMa950udUQGJixqk_omezkiwqSvusDelJpEiegkmO-nWaVQ/exec';
+    const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/VOTRE_ID_DE_DEPLOIEMENT/exec';
 
     const ICONES = {
       'En vol': { emoji: '✈️', classe: 'en-vol' },
@@ -113,6 +113,8 @@
 
       if (data.voyageTermine) {
         html += `<p class="termine">Le voyage est terminé, ce bagage n'est plus suivi.</p>`;
+      } else if (data.statut === 'À la maison') {
+        html += `<p class="termine">Bagage non perdu — il est actuellement chez son propriétaire.</p>`;
       } else {
         html += `<div class="bloc">`;
         if (data.message) {
